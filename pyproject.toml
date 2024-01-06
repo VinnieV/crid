@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[project]
+name = "crid"
+authors = [
+    {name = "Vinnie Vanhoecke", email = "vinnie_vanhoecke@hotmail.com"},
+]
+description = "CLI for interacting with Mifare Classic 1K cards using an ACR122U NFC reader."
+readme = "README.md"
+license = {text = "CC BY-NC"}
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11"
+]
+version = "0.1.0"
+
+[project.urls]
+Documentation = "https://github.com/VinnieV/crid/tree/main#readme"
+Source = "https://github.com/VinnieV/crid"
+Tracker = "https://github.com/VinnieV/crid/issues"
+
+[options]
+python_requires = ">=3.6"
+install_requires = [
+    'nfcpy',
+    'argparse'
+]
+
+[project.scripts]
+crid = "crid.modules.cli:main"
+
+[options.packages.find]
+where = "."
