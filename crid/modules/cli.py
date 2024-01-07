@@ -13,7 +13,6 @@ import progressbar
 import binascii
 import time
 
-
 class RFIDClient:
     def __init__(self):
         # Constants
@@ -306,8 +305,9 @@ class RFIDClient:
               | |    |  _  / | | | |  | |
               | |____| | \ \_| |_| |__| |
                \_____|_|  \_\_____|_____/
-                                          v1
+                                          v0.2.0
             """)
+        
 
         parser = argparse.ArgumentParser(description='Interact with Mifare Classic 1K cards.')
 
@@ -353,46 +353,46 @@ class RFIDClient:
         # Examples
         parser.epilog = '''Examples:
     # Read the UID of the card
-    python cli.py --read_uid
+    crid --read_uid
 
     # Identify the card to the user
-    python cli.py --identify
+    crid --identify
 
     # Read a block from the card using key type A and key value ffffffffffff
-    python cli.py --read_block 2 --key_type A --key_value ffffffffffff
+    crid --read_block 2 --key_type A --key_value ffffffffffff
 
     # Write "Hello, World!" to block 3 using key type B and key value a1b2c3d4e5f6
-    python cli.py --write_block 3 --data "48656C6C6F2C20576F726C6421" --key_type B --key_value a1b2c3d4e5f6
+    crid --write_block 3 --data "48656C6C6F2C20576F726C6421" --key_type B --key_value a1b2c3d4e5f6
 
     # Read sector 1 from the card using key type A and key value ffffffffffff
-    python cli.py --read_sector 1 --key_type A --key_value ffffffffffff
+    crid --read_sector 1 --key_type A --key_value ffffffffffff
 
     # Read all 16 sectors from the card using key type B and key value a1b2c3d4e5f6
-    python cli.py --read_full --key_type B --key_value a1b2c3d4e5f6
+    crid --read_full --key_type B --key_value a1b2c3d4e5f6
 
     # Find keys for a Mifare Classic card (requires mfoc binary)
-    python cli.py --find_mifare_keys
+    crid --find_mifare_keys
 
     # Brute force keys for block 18 using the key list file keys.txt
-    python cli.py --brute_force_keys 18 --key_list mifare_access_keys_top100.lst
+    crid --brute_force_keys 18 --key_list mifare_access_keys_top100.lst
 
     # Mute the buzzer on the reader
-    python cli.py --mute
+    crid --mute
 
     # Provide the flag option
-    python cli.py --flag
+    crid --flag
 
     # Enable the buzzer on the reader
-    python cli.py --beep
+    crid --beep
 
     # Set the log level to DEBUG
-    python cli.py --log_level DEBUG
+    crid --log_level DEBUG
 
     # Send an APDU command to the NFC device
-    python cli.py --apdu_command 00A4040007A000000003101000
+    crid --apdu_command 00A4040007A000000003101000
 
     # Set the data format to string
-    python cli.py --data_format string
+    crid --data_format string
                 '''
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
     

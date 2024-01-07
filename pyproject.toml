@@ -16,7 +16,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11"
 ]
-version = "0.1.0"
+version = "0.2.0"
+
 
 [project.urls]
 Documentation = "https://github.com/VinnieV/crid/tree/main#readme"
@@ -26,8 +27,12 @@ Tracker = "https://github.com/VinnieV/crid/issues"
 [options]
 python_requires = ">=3.6"
 install_requires = [
-    'nfcpy',
-    'argparse'
+    'argparse',
+    'tabulate',
+    'swig',
+    'termcolor',
+    'progressbar',
+    'py122u'
 ]
 
 [project.scripts]

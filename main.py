@@ -1,6 +1,7 @@
+
+#!/usr/bin/env python3
 # main.py
 from crid.modules.cli import RFIDClient
-
 
 def main():
     client = RFIDClient()

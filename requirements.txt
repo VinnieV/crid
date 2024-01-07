@@ -1,0 +1,6 @@
+argparse
+tabulate
+swig
+termcolor
+progressbar
+py122u
