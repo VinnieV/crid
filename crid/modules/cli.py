@@ -131,6 +131,7 @@ class RFIDClient:
             return []
 
     def write_block(self, block, data, key=None, key_type=None):
+        data = data.upper()
         # Validate data format
         if len(data) != 32 or not all(c in "0123456789ABCDEFabcdef" for c in data):
             raise ValueError("Invalid data format. Data must be a 16-byte hexstring.")
@@ -146,9 +147,8 @@ class RFIDClient:
 
         # Validate write operation
         written_data = self.read_block(block, key, key_type)
-        written_data_str = "".join([f"{byte:02x}" for byte in written_data])  # Convert to hex string
-        
-        if written_data_str.upper() == data.upper():
+        written_data_str = "".join([f"{byte:02x}" for byte in written_data]).upper()  # Convert to hex string
+        if written_data_str == data:
             logging.info(f"Write successful for block {block}.")
         else:
             logging.error(f"Write failed for block {block}.")
