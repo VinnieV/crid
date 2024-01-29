@@ -12,6 +12,8 @@ import platform
 import progressbar
 import binascii
 import time
+import shutil
+import datetime
 
 class RFIDClient:
     def __init__(self):
@@ -145,7 +147,8 @@ class RFIDClient:
         # Validate write operation
         written_data = self.read_block(block, key, key_type)
         written_data_str = "".join([f"{byte:02x}" for byte in written_data])  # Convert to hex string
-        if written_data_str == data:
+        
+        if written_data_str.upper() == data.upper():
             logging.info(f"Write successful for block {block}.")
         else:
             logging.error(f"Write failed for block {block}.")
@@ -215,23 +218,46 @@ class RFIDClient:
         print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
     # Mifare attacks
-    def find_mifare_keys(self):
+    def nested_attack(self):
         # Check if the system is Windows
         if platform.system() == "Windows":
             logging.error("This feature is currently not compatible with Windows and requires the mfoc binary.")
             return
 
         # Check if mfoc binary is available
-        if not os.path.exists("mfoc"):
+        if shutil.which("mfoc"):
+            logging.info("mfoc binary found.")
+        else:
             logging.error("mfoc binary not found.")
             return
+        
+        # Create file string with datetime stamp and UID
+        uid_hex = ''.join(f"{byte:02X}" for byte in self.read_uid())
+        file_string = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_" + uid_hex + ".mfd"
 
         # Invoke mfoc to find keys for a Mifare Classic card
         try:
-            subprocess.run(["mfoc -h"], shell=True, check=True)
+            subprocess.run(["mfoc", "-O", file_string], check=True)
         except FileNotFoundError:
             logging.error("mfoc binary not found.")
             return
+
+    def hardnested_attack(self, key: list, key_type: str, target_block: int, target_key_type: str):
+        # Check if the system is Windows
+        if platform.system() == "Windows":
+            logging.error("This feature is currently not compatible with Windows and requires the libnfc_crypto1_crack binary.")
+            return
+
+        # Check if mfoc binary is available
+        if shutil.which("libnfc_crypto1_crack"):
+            logging.info("libnfc_crypto1_crack binary found.")
+        else:
+            logging.error("libnfc_crypto1_crack binary not found.")
+            return
+        
+        # Example command ./libnfc_crypto1_crack 000000000000 0 A 4 A
+        command = ["libnfc_crypto1_crack", "".join(f"{byte:02X}" for byte in key), str(key_type), str(target_block), str(target_key_type)]
+        print(command)
         
     def brute_force(self, key_file, target_block, key_type):
         valid_key = None
@@ -330,11 +356,14 @@ class RFIDClient:
         parser.add_argument('--key_type', choices=['A', 'B'], default='A', help='Set the key type (A or B).')
         parser.add_argument('--key_value', type=str, default='ffffffffffff', help='Set the key value. (6 bytes, hexstring)')
         parser.add_argument('--key_list', type=str, help='Set the key list file for brute forcing.')
+        parser.add_argument('--target_key_type', choices=['A', 'B'], default='A', help='Set the target key type, only used for hardnested attack (A or B).')
 
         # Mifare attacks
-        parser.add_argument('--find_mifare_keys', action='store_true', help='Find keys for a Mifare Classic card.')
         parser.add_argument('--brute_force_keys', type=int, help='Specify the block you want to brute force and use --key_list as file containing access keys for brute forcing.')
-            
+        parser.add_argument('--nested_attack', action='store_true', help='Execute nested attack')
+        parser.add_argument('--hardnested_attack', type=int, help='Execute hardnested attack, as value provide the block you know the key for (requires key_value, key_type, target_block, target_key_type)')
+        parser.add_argument('--darkside_attack', action='store_true', help='Execute darkside attack')
+
         # APDU commands
         parser.add_argument('--apdu_command', type=str, help='Send an APDU command to the NFC device.')
 
@@ -431,8 +460,12 @@ class RFIDClient:
             self.display_sector(args.read_sector, args.data_format)
         elif args.read_full:
             self.read_full(args.data_format)
-        elif args.find_mifare_keys:
-            self.find_mifare_keys()
+        elif args.nested_attack:
+            self.nested_attack()
+        elif args.hardnested_attack:
+            self.hardnested_attack(args.key_value, self.KeyTypes[args.key_type], args.read_block, self.KeyTypes[args.target_key_type])
+        elif args.darkside_attack:
+            print("Not implemented yet.")
         elif args.apdu_command is not None:
                 # Convert hexstring to bytes
                 apdu_command = binascii.unhexlify(args.apdu_command)
