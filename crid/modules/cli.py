@@ -54,7 +54,6 @@ class RFIDClient:
             logging.info("Connected to reader..")
         except py122u.error.NoReader:
             logging.error("Error: No reader found.")
-            sys.exit(1)
 
         # Connect to card
         try:
@@ -62,7 +61,6 @@ class RFIDClient:
             logging.info("Connected to card..")
         except py122u.error.NoCommunication:
             logging.error("Error: No card present.")
-            sys.exit(1)
         
         return reader
 
@@ -438,12 +436,13 @@ class RFIDClient:
             self.nested_attack()
         elif args.flag:
             print(colored("flag{h3lp_m3nu}", "green"))
-        elif args.help:
-            parser.print_help()
         else:
-
-            # Initialize reader if required
-            self.reader = self.init_reader()
+            
+            try: 
+                # Initialize reader if required
+                self.reader = self.init_reader()
+            except Exception as e:
+                logging.error(f"Failed to initialize reader: {e}")
 
             # Run the command
             if args.read_uid:
