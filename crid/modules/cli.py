@@ -43,9 +43,6 @@ class RFIDClient:
 
         # Configure logging
         logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
-
-        # Initialize reader
-        self.reader = self.init_reader()
         
 
     def init_reader(self):
@@ -436,59 +433,67 @@ class RFIDClient:
         self.config_key = args.key_value
         self.config_key_type = self.KeyTypes[args.key_type]
 
-        # Run the command
-        if args.read_uid:
-            self.read_uid()
-        elif args.identify:
-            self.identify_card()
-        elif args.read_block is not None:
-            data = self.read_block(args.read_block, key=args.key_value, key_type=self.KeyTypes[args.key_type])
-            if args.data_format == 'hexstring':
-                data_str = " ".join([f"{byte:02X}" for byte in data])
-            elif args.data_format == 'string':
-                data_str = "".join([chr(byte) if 32 <= byte <= 126 else '.' for byte in data])
-            elif args.data_format == 'bytestring':
-                data_str = data
-            else:
-                raise ValueError("Invalid data format.")
-            print(f"Block {args.read_block}: {data_str}")
-        elif args.write_block is not None and args.data is not None:
-            self.write_block(args.write_block, args.data, key=args.key_value, key_type=self.KeyTypes[args.key_type])
-        elif args.read_sector is not None:
-            self.display_sector(args.read_sector, args.data_format)
-        elif args.read_full:
-            self.read_full(args.data_format)
-        elif args.nested_attack:
+        # First check function that dont require initialization of the reader
+        if args.nested_attack:
             self.nested_attack()
-        elif args.hardnested_attack:
-            self.hardnested_attack(args.key_value, self.KeyTypes[args.key_type], args.read_block, self.KeyTypes[args.target_key_type])
-        elif args.darkside_attack:
-            print("Not implemented yet.")
-        elif args.apdu_command is not None:
-                # Convert hexstring to bytes
-                apdu_command = binascii.unhexlify(args.apdu_command)
-                self.send_apdu_command(apdu_command)
-        elif args.brute_force_keys is not None: 
-            # Check if key list file is specified
-            if args.key_list is None:
-                logging.error("Please specify a key list file using --key_list.")
-                return
-            
-            # Check if key type is specified
-            if args.key_type is None:
-                logging.error("Please specify a key type using --key_type.")
-                return
-
-            # Brute force keys
-            self.brute_force(args.key_list, args.brute_force_keys, args.key_type)
-        elif args.mute:
-            self.mute_sound()
-        elif args.beep:
-            self.beep_sound()
         elif args.flag:
             print(colored("flag{h3lp_m3nu}", "green"))
-        else:
+        elif args.help:
             parser.print_help()
+        else:
+
+            # Initialize reader if required
+            self.reader = self.init_reader()
+
+            # Run the command
+            if args.read_uid:
+                self.read_uid()
+            elif args.identify:
+                self.identify_card()
+            elif args.read_block is not None:
+                data = self.read_block(args.read_block, key=args.key_value, key_type=self.KeyTypes[args.key_type])
+                if args.data_format == 'hexstring':
+                    data_str = " ".join([f"{byte:02X}" for byte in data])
+                elif args.data_format == 'string':
+                    data_str = "".join([chr(byte) if 32 <= byte <= 126 else '.' for byte in data])
+                elif args.data_format == 'bytestring':
+                    data_str = data
+                else:
+                    raise ValueError("Invalid data format.")
+                print(f"Block {args.read_block}: {data_str}")
+            elif args.write_block is not None and args.data is not None:
+                self.write_block(args.write_block, args.data, key=args.key_value, key_type=self.KeyTypes[args.key_type])
+            elif args.read_sector is not None:
+                self.display_sector(args.read_sector, args.data_format)
+            elif args.read_full:
+                self.read_full(args.data_format)
+            elif args.hardnested_attack:
+                self.hardnested_attack(args.key_value, self.KeyTypes[args.key_type], args.read_block, self.KeyTypes[args.target_key_type])
+            elif args.darkside_attack:
+                print("Not implemented yet.")
+            elif args.apdu_command is not None:
+                    # Convert hexstring to bytes
+                    apdu_command = binascii.unhexlify(args.apdu_command)
+                    self.send_apdu_command(apdu_command)
+            elif args.brute_force_keys is not None: 
+                # Check if key list file is specified
+                if args.key_list is None:
+                    logging.error("Please specify a key list file using --key_list.")
+                    return
+                
+                # Check if key type is specified
+                if args.key_type is None:
+                    logging.error("Please specify a key type using --key_type.")
+                    return
+
+                # Brute force keys
+                self.brute_force(args.key_list, args.brute_force_keys, args.key_type)
+            elif args.mute:
+                self.mute_sound()
+            elif args.beep:
+                self.beep_sound()
+            else:
+                parser.print_help()
 
         self.disconnect()
 
