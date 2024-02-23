@@ -231,9 +231,8 @@ class RFIDClient:
             logging.error("mfoc binary not found.")
             return
         
-        # Create file string with datetime stamp and UID
-        uid_hex = ''.join(f"{byte:02X}" for byte in self.read_uid())
-        file_string = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_" + uid_hex + ".mfd"
+        # Create file string with datetime stamp
+        file_string = datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "_mfoc.mfd"
 
         # Invoke mfoc to find keys for a Mifare Classic card
         try:
@@ -321,7 +320,6 @@ class RFIDClient:
 
     def disconnect(self):
         logging.info("Closing reader..")
-        self.reader.custom
 
     def run_cli(self):
         print(f"""

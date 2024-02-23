@@ -7,7 +7,7 @@ This is a command-line interface (CLI) application for interacting with Mifare C
 Linux requires some libraries to be installed:
 ```bash
 sudo apt-get update
-sudo apt-get install libpcsclite-dev libpcsclite1 pcscd pcsc-tools
+sudo apt-get install libpcsclite-dev libpcsclite1 pcscd pcsc-tools swig
 ```
 
 Installation through pip package manager
@@ -135,9 +135,9 @@ To install the RFID Client application, follow the steps below:
      - **Linux**:
          - Open a terminal window.
          - Edit the `.bashrc` or `.bash_profile` file in your home directory using a text editor (e.g., `nano ~/.bashrc`).
-         - Add the following line at the end of the file, replacing `<username>` with the your linux username:
+         - Add the following line at the end of the file:
           ```bash
-          export PATH="/home/<username>/.local/bin/:$PATH"
+          export PATH="$PATH:$HOME/.local/bin/"
           ```
          - Save the file and exit the text editor.
          - Run the following command to apply the changes:
