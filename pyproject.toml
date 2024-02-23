@@ -14,10 +14,19 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11"
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13"
 ]
-version = "0.2.0"
-
+version = "0.3.0"
+dependencies = [
+    'argparse',
+    'tabulate',
+    'swig',
+    'termcolor',
+    'progressbar',
+    'py122u'
+]
 
 [project.urls]
 Documentation = "https://github.com/VinnieV/crid/tree/main#readme"
@@ -28,8 +37,8 @@ Tracker = "https://github.com/VinnieV/crid/issues"
 python_requires = ">=3.6"
 install_requires = [
     'argparse',
-    'tabulate',
     'swig',
+    'tabulate',
     'termcolor',
     'progressbar',
     'py122u'
