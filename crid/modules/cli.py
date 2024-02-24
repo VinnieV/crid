@@ -235,6 +235,9 @@ class RFIDClient:
         except FileNotFoundError:
             logging.error("mfoc binary not found.")
             return
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Failed to run mfoc: {e}")
+            return
 
     def hardnested_attack(self, key: list, key_type: str, target_block: int, target_key_type: str):
         # Check if the system is Windows
@@ -250,8 +253,17 @@ class RFIDClient:
             return
         
         # Example command ./libnfc_crypto1_crack 000000000000 0 A 4 A
-        command = ["libnfc_crypto1_crack", "".join(f"{byte:02X}" for byte in key), str(key_type), str(target_block), str(target_key_type)]
+        command = ["libnfc_crypto1_crack", "".join(f"{byte:02X}" for byte in key), "0", str(key_type), str(target_block), str(target_key_type)]
         print(command)
+        # Invoke libnfc_crypto1_crack to find keys for a Mifare Classic card
+        try:
+            subprocess.run(command, check=True)
+        except FileNotFoundError:
+            logging.error("libnfc_crypto1_crack binary not found.")
+            return
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Failed to run libnfc_crypto1_crack: {e}")
+            return
         
     def brute_force(self, key_file, target_block, key_type):
         valid_key = None
@@ -398,6 +410,15 @@ class RFIDClient:
     # Brute force keys for block 18 using the key list file keys.txt
     crid --brute_force_keys 18 --key_list mifare_access_keys_top100.lst
 
+    # Execute nested attack (requires mfoc binary)
+    crid --nested_attack
+
+    # Execute hardnested attack for block 18 using key value ffffffffffff and key type A, target key type B (requires libnfc_crypto1_crack binary)
+    crid --hardnested_attack 18 --key_value ffffffffffff --key_type A --target_key_type B
+
+    # Execute darkside attack (requires darkside binary)
+    crid --darkside_attack
+
     # Mute the buzzer on the reader
     crid --mute
 
@@ -434,6 +455,10 @@ class RFIDClient:
         # First check function that dont require initialization of the reader
         if args.nested_attack:
             self.nested_attack()
+        elif args.hardnested_attack:
+            self.hardnested_attack(args.key_value, args.key_type, args.hardnested_attack, args.target_key_type)
+        elif args.darkside_attack:
+            print("Not implemented yet.")
         elif args.flag:
             print(colored("flag{h3lp_m3nu}", "green"))
         else:
@@ -466,10 +491,6 @@ class RFIDClient:
                 self.display_sector(args.read_sector, args.data_format)
             elif args.read_full:
                 self.read_full(args.data_format)
-            elif args.hardnested_attack:
-                self.hardnested_attack(args.key_value, self.KeyTypes[args.key_type], args.read_block, self.KeyTypes[args.target_key_type])
-            elif args.darkside_attack:
-                print("Not implemented yet.")
             elif args.apdu_command is not None:
                     # Convert hexstring to bytes
                     apdu_command = binascii.unhexlify(args.apdu_command)
