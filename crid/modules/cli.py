@@ -254,7 +254,6 @@ class RFIDClient:
         
         # Example command ./libnfc_crypto1_crack 000000000000 0 A 4 A
         command = ["libnfc_crypto1_crack", "".join(f"{byte:02X}" for byte in key), "0", str(key_type), str(target_block), str(target_key_type)]
-        print(command)
         # Invoke libnfc_crypto1_crack to find keys for a Mifare Classic card
         try:
             subprocess.run(command, check=True)
@@ -263,6 +262,31 @@ class RFIDClient:
             return
         except subprocess.CalledProcessError as e:
             logging.error(f"Failed to run libnfc_crypto1_crack: {e}")
+            return
+        
+    def darkside_attack(self):
+        # Check if the system is Windows
+        if platform.system() == "Windows":
+            logging.error("This feature is currently not compatible with Windows and requires the mfcuk binary.")
+            return
+
+        # Check if mfoc binary is available
+        if shutil.which("mfcuk"):
+            logging.info("mfcuk binary found.")
+        else:
+            logging.error("mfcuk binary not found.")
+            return
+        
+        # Example command mfcuk -C -R -1
+        command = ["mfcuk", "-C", "-R", "-1"]
+        # Invoke mfcuk to find keys for a Mifare Classic card
+        try:
+            subprocess.run(command, check=True)
+        except FileNotFoundError:
+            logging.error("mfcuk binary not found.")
+            return
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Failed to run mfcuk: {e}")
             return
         
     def brute_force(self, key_file, target_block, key_type):
@@ -458,7 +482,7 @@ class RFIDClient:
         elif args.hardnested_attack:
             self.hardnested_attack(args.key_value, args.key_type, args.hardnested_attack, args.target_key_type)
         elif args.darkside_attack:
-            print("Not implemented yet.")
+            self.darkside_attack()
         elif args.flag:
             print(colored("flag{h3lp_m3nu}", "green"))
         else:
